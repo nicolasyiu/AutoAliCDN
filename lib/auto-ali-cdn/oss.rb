@@ -8,8 +8,7 @@ module AutoAliCDN
       client = Aliyun::OSS::Client.new(
           :endpoint => AutoAliCDN::Config.endpoint,
           :access_key_id => AutoAliCDN::Config.access_key_id,
-          :access_key_secret => AutoAliCDN::Config.access_key_secret,
-          :cname => true)
+          :access_key_secret => AutoAliCDN::Config.access_key_secret)
 
       buckets = client.list_buckets
       buckets.each{ |b| puts b.name }
