@@ -1,0 +1,68 @@
+#!/usr/bin/env ruby
+
+require 'auto_ali_cdn'
+
+def help
+  puts <<-EOB
+2cdn v#{AutoAliCDN::VERSION}
+
+Options:
+  -h, --help        Show help
+  -V, --version     Show program version
+
+Basic usage:
+  2cdn help    # Show help
+  2cdn init    # Init setting files
+  2cdn setup   # Init oss file paths
+  2cdn upload  # Upload resources to Aliyun Oss
+  EOB
+end
+
+def app_path
+  @app_path ||= `pwd`.gsub("\n", '')
+end
+
+def config_file
+  app_path+'/config/2cdn.yml'
+end
+
+
+if ARGV.empty? || ARGV[0] =~ /^(-h)|(--help)|(help)$/
+  help
+  exit
+end
+
+if ARGV[0] =~ /^(-v)|(--version)$/
+  puts AutoAliCDN::VERSION
+  exit
+end
+
+if ARGV[0] =~ /^init$/
+  (system "mkdir #{app_path}/config") unless File.directory?("#{app_path}/config")
+  system "touch #{config_file}"
+  if File.read(config_file).length<=0
+    File.open(config_file, 'w') do |f|
+      f.puts <<-EOB
+access_key_id: YOUR_ACCESS_ID
+access_key_secret: YOUR_ACCESS_KEY
+endpoint: YOUR_OSS_SERVICE_ADDRESS
+bucket: YOUR_BUCKET_NAME
+site_resource_path: /sites/your.server.name
+      EOB
+    end
+    puts "config/2cdn.yml init ok.\nPlease fillup the keys.\n#{`cat #{config_file}`}"
+  end
+end
+
+if ARGV[0] =~ /^setup$/
+  AutoAliCDN::Oss.setup(config_file)
+end
+
+if ARGV[0] =~ /^upload$/
+
+  unless File.exist?(config_file)
+    puts "#{config_file} does not exist\nPlease run `2cdn init` first."
+    exit
+  end
+
+end
