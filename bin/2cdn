@@ -12,9 +12,9 @@ Options:
 
 Basic usage:
   2cdn help    # Show help
-  2cdn init    # Init setting files
   2cdn setup   # Init oss file paths
   2cdn upload  # Upload resources to Aliyun Oss
+  2cdn debug   # Change resources path to local path
   EOB
 end
 
@@ -37,8 +37,11 @@ if ARGV[0] =~ /^(-v)|(--version)$/
   exit
 end
 
-if ARGV[0] =~ /^init$/
+if ARGV[0] =~ /^setup$/
   (system "mkdir #{app_path}/config") unless File.directory?("#{app_path}/config")
+  (system "mkdir #{app_path}/images") unless File.directory?("#{app_path}/images")
+  (system "mkdir #{app_path}/javascripts") unless File.directory?("#{app_path}/javascripts")
+  (system "mkdir #{app_path}/css") unless File.directory?("#{app_path}/css")
   system "touch #{config_file}"
   if File.read(config_file).length<=0
     File.open(config_file, 'w') do |f|
@@ -46,16 +49,14 @@ if ARGV[0] =~ /^init$/
 access_key_id: YOUR_ACCESS_ID
 access_key_secret: YOUR_ACCESS_KEY
 endpoint: YOUR_OSS_SERVICE_ADDRESS
+domain_name: http://cdn.your.server.name
 bucket: YOUR_BUCKET_NAME
 site_resource_path: /sites/your.server.name
       EOB
     end
     puts "config/2cdn.yml init ok.\nPlease fillup the keys.\n#{`cat #{config_file}`}"
   end
-end
-
-if ARGV[0] =~ /^setup$/
-  AutoAliCDN::Oss.setup(config_file)
+  AutoAliCDN::Oss.oss_setup(config_file)
 end
 
 if ARGV[0] =~ /^upload$/
@@ -65,4 +66,9 @@ if ARGV[0] =~ /^upload$/
     exit
   end
 
+  AutoAliCDN::Oss.oss_upload(config_file, app_path)
+end
+
+if ARGV[0] =~ /^debug$/
+  AutoAliCDN::Oss.oss_debug(config_file, app_path)
 end

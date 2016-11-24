@@ -1,0 +1,6 @@
+access_key_id: key 
+access_key_secret: secret 
+endpoint: http://oss-cn-hangzhou.aliyuncs.com 
+domain_name: http://cdn.your.server.name
+bucket: public
+site_resource_path: sites/your.server.name

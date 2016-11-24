@@ -25,5 +25,30 @@ module AutoAliCDN
     def self.endpoint
       @@endpoint
     end
+
+    def self.bucket=(val)
+      @@bucket = val
+    end
+
+    def self.bucket
+      @@bucket
+    end
+
+    def self.site_resource_path=(val)
+      @@site_resource_path = val
+    end
+
+    def self.site_resource_path
+      @@site_resource_path
+    end
+
+    def self.domain_name=(val)
+      @@domain_name= val
+    end
+
+    def self.domain_name
+      @@domain_name
+    end
+
   end
 end
