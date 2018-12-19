@@ -36,7 +36,7 @@ module AutoAliCDN
     end
 
     #upload local files to server
-    def self.oss_upload(config_path, app_path)
+    def self.oss_upload(config_path, app_path,rename=false)
       config = oss_config(config_path)
 
       images_path = app_path+'/images'
@@ -68,7 +68,9 @@ module AutoAliCDN
           file_path = res_path+"/#{name}"
           file_md5 = Digest::MD5.hexdigest(File.read(file_path))
           res_type = res_path.gsub(/^.*\//, '')
-          object_key = config.site_resource_path+"/#{res_type}/#{name.gsub(/\./, "-#{file_md5}.")}"
+          suffix = "."+name.split(/\./).last
+          new_name = rename ? name.gsub(/#{suffix}$/, "-#{file_md5}#{suffix}"): name
+          object_key = config.site_resource_path+"/#{Time.now.strftime("%F %H:%M")}/#{new_name}"
           if bucket.object_exists?(object_key)
             puts "#{name} --> #{object_key}".color(:dimgray)
             replace_res_path.call(res_type+'/'+name, config.domain_name+'/'+object_key)
@@ -113,7 +115,8 @@ module AutoAliCDN
           file_path = res_path+"/#{name}"
           file_md5 = Digest::MD5.hexdigest(File.read(file_path))
           res_type = res_path.gsub(/^.*\//, '')
-          object_key = config.site_resource_path+"/#{res_type}/#{name.gsub(/\./, "-#{file_md5}.")}"
+          suffix = "."+name.split(/\./).last
+          object_key = config.site_resource_path+"/#{res_type}/#{name.gsub(/#{suffix}$/, "-#{file_md5}#{suffix}")}"
           if bucket.object_exists?(object_key)
             replace_res_path.call(config.domain_name+'/'+object_key, res_type+'/'+name)
             puts "#{object_key.color(:red)} --> #{"#{res_type}/#{name}".color(:cyan)}"
