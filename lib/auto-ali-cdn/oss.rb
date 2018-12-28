@@ -30,61 +30,19 @@ module AutoAliCDN
 
       puts bucket.name
       bucket.put_object(config.site_resource_path+"/.start.txt") { |stream| stream << '2cdn setup ok' }
-      bucket.put_object(config.site_resource_path+"/images/.start.png") { |stream| stream << '2cdn setup ok' }
-      bucket.put_object(config.site_resource_path+"/javascripts/.start.js") { |stream| stream << "console.log('start from here')" }
-      bucket.put_object(config.site_resource_path+"/css/.start.css") { |stream| stream << "body{padding:0;}" }
     end
 
-    #upload local files to server
-    def self.oss_upload(config_path, app_path,rename=false)
+    def self.oss_upload(config_path, app_path, local_file, remote_file)
       config = oss_config(config_path)
-
-      images_path = app_path+'/images'
-      javascripts_path = app_path+'/javascripts'
-      css_path = app_path+'/css'
-
       bucket = bucket(config)
 
-      replace_res_path = ->(local_path, remote_path) do
-        Dir.foreach(app_path) do |f|
-          if f =~ /\.(html)|(htm)$/
-            remote_prefix = remote_path.gsub(/-\w{32}\.(gif|png|jpg|jpeg|css|js)$/, '')
-
-            file_content = File.read("#{app_path}/#{f}").gsub(local_path, remote_path)
-
-            file_content = file_content.gsub(Regexp.new(remote_prefix+'-\w{32}\.(gif|png|jpg|jpeg|css|js)'), remote_path)
-
-            File.open("#{app_path}/#{f}", "w") do |f2|
-              f2.puts file_content
-            end
-          end
-        end
+      object_key = config.site_resource_path+"/#{remote_file}"
+      if bucket.object_exists?(object_key)
+        puts "#{name} --> #{object_key}".color(:dimgray)
+      else
+        bucket.put_object(object_key, :file => local_file)
+        puts "#{name} --> #{object_key}".color(:green)
       end
-
-      #upload image javascripts css etc.
-      upload_c = ->(res_path) do
-        Dir.foreach(res_path) do |name|
-          next if name =~ /^(\.)|(\.\.)$/
-          file_path = res_path+"/#{name}"
-          file_md5 = Digest::MD5.hexdigest(File.read(file_path))
-          res_type = res_path.gsub(/^.*\//, '')
-          suffix = "."+name.split(/\./).last
-          new_name = rename ? name.gsub(/#{suffix}$/, "-#{file_md5}#{suffix}"): name
-          object_key = config.site_resource_path+"/#{Time.now.strftime("%F %H:%M")}/#{new_name}"
-          if bucket.object_exists?(object_key)
-            puts "#{name} --> #{object_key}".color(:dimgray)
-            replace_res_path.call(res_type+'/'+name, config.domain_name+'/'+object_key)
-          else
-            bucket.put_object(object_key, :file => file_path)
-            puts "#{name} --> #{object_key}".color(:green)
-            replace_res_path.call(res_type+'/'+name, config.domain_name+'/'+object_key)
-          end
-        end
-      end
-
-      upload_c.call(images_path)
-      upload_c.call(javascripts_path)
-      upload_c.call(css_path)
     end
 
     def self.oss_debug(config_path, app_path)

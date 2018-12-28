@@ -9,7 +9,7 @@ TODO: Delete this and the text above, and describe your gem
 Add this line to your application's Gemfile:
 
 ```ruby
-gem 'AutoAliCDN'
+gem '2cdn'
 ```
 
 And then execute:
@@ -18,11 +18,25 @@ And then execute:
 
 Or install it yourself as:
 
-    $ gem install AutoAliCDN
+    $ gem install 2cdn 
 
 ## Usage
 
-TODO: Write usage instructions here
+### Setup
+
+    $ 2cdn setup
+
+### Edit config 
+    
+    $ vim config/2cdn.yml
+
+### Upload
+
+    $ 2cdn upload my_path/my*.zip remote_path
+
+### Download
+    
+    $ 2cdn download remote_path/2018.1.zip my_path/2018.1.zip
 
 ## Development
 
