@@ -13,7 +13,7 @@ Options:
 Basic usage:
   2cdn help       # Show help
   2cdn setup      # Init oss file paths
-  2cdn upload     # Upload resources to Aliyun Oss
+  2cdn upload     # Upload resources to Aliyun Oss `2cdn upload $local_file $remote_file $is_delete`
   2cdn download   # Download resources path to local path
   EOB
 end
@@ -63,9 +63,9 @@ if ARGV[0] =~ /^upload$/
     exit
   end
 
-  AutoAliCDN::Oss.oss_upload(config_file, "#{app_path}/#{ARGV[1]}", ARGV[2])
+  AutoAliCDN::Oss.oss_upload(config_file, app_path, ARGV[1], ARGV[2], ARGV[3])
 end
 
 if ARGV[0] =~ /^download$/
-  AutoAliCDN::Oss.oss_download(config_file, ARGV[1] ,"#{app_path}/#{ARGV[2]}")
+  AutoAliCDN::Oss.oss_download(config_file, app_path, ARGV[1] , ARGV[2])
 end

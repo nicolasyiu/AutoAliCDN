@@ -18,7 +18,7 @@ And then execute:
 
 Or install it yourself as:
 
-    $ gem install 2cdn 
+    $ gem install 2cdn
 
 ## Usage
 
@@ -26,16 +26,16 @@ Or install it yourself as:
 
     $ 2cdn setup
 
-### Edit config 
-    
+### Edit config
+
     $ vim config/2cdn.yml
 
 ### Upload
 
-    $ 2cdn upload my_path/my*.zip remote_path
+    $ 2cdn upload my_path/my.zip remote_path
 
 ### Download
-    
+
     $ 2cdn download remote_path/2018.1.zip my_path/2018.1.zip
 
 ## Development
@@ -52,4 +52,3 @@ Bug reports and pull requests are welcome on GitHub at https://github.com/[USERN
 ## License
 
 The gem is available as open source under the terms of the [MIT License](http://opensource.org/licenses/MIT).
-

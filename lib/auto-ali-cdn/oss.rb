@@ -32,7 +32,7 @@ module AutoAliCDN
       bucket.put_object(config.site_resource_path+"/.start.txt") { |stream| stream << '2cdn setup ok' }
     end
 
-    def self.oss_upload(config_path, app_path, local_file, remote_file)
+    def self.oss_upload(config_path, app_path, local_file, remote_file, delete='false')
       config = oss_config(config_path)
       bucket = bucket(config)
 
@@ -40,51 +40,27 @@ module AutoAliCDN
       if bucket.object_exists?(object_key)
         puts "#{name} --> #{object_key}".color(:dimgray)
       else
-        bucket.put_object(object_key, :file => local_file)
-        puts "#{name} --> #{object_key}".color(:green)
+        begin
+          bucket.put_object(object_key, :file => "#{app_path}/#{local_file}")
+          puts "#{name} --> #{object_key}".color(:green)
+          File.delete("#{app_path}/#{local_file}") if delete == 'true'
+        rescue Aliyun::OSS::CallbackError => e
+          puts "Callback failed: #{e.message}"
+        end
       end
     end
 
-    def self.oss_debug(config_path, app_path)
+    def self.oss_download(config_path, app_path, remote_file, local_file)
       config = oss_config(config_path)
-
-      images_path = app_path+'/images'
-      javascripts_path = app_path+'/javascripts'
-      css_path = app_path+'/css'
 
       bucket = bucket(config)
 
-      replace_res_path = ->(remote_path, local_path) do
-        Dir.foreach(app_path) do |f|
-          if f =~ /\.(html)|(htm)$/
-
-            file_content = File.read("#{app_path}/#{f}").gsub(remote_path, local_path)
-
-            File.open("#{app_path}/#{f}", "w") do |f2|
-              f2.puts file_content
-            end
-          end
-        end
+      object_key = config.site_resource_path+"/#{remote_file}"
+      if bucket.object_exists?(object_key)
+        bucket.get_object(object_key, :file =>  "#{app_path}/#{local_file}")
+        puts "#{object_key} --> #{app_path}/#{local_file}".color(:cyan)
       end
 
-      debug_c = ->(res_path) do
-        Dir.foreach(res_path) do |name|
-          next if name =~ /^(\.)|(\.\.)$/
-          file_path = res_path+"/#{name}"
-          file_md5 = Digest::MD5.hexdigest(File.read(file_path))
-          res_type = res_path.gsub(/^.*\//, '')
-          suffix = "."+name.split(/\./).last
-          object_key = config.site_resource_path+"/#{res_type}/#{name.gsub(/#{suffix}$/, "-#{file_md5}#{suffix}")}"
-          if bucket.object_exists?(object_key)
-            replace_res_path.call(config.domain_name+'/'+object_key, res_type+'/'+name)
-            puts "#{object_key.color(:red)} --> #{"#{res_type}/#{name}".color(:cyan)}"
-          end
-        end
-      end
-
-      debug_c.call(images_path)
-      debug_c.call(javascripts_path)
-      debug_c.call(css_path)
     end
 
   end
