@@ -7,11 +7,11 @@ Gem::Specification.new do |spec|
   spec.name          = "2cdn"
   spec.version       = AutoAliCDN::VERSION
   spec.authors       = ["liuxi"]
-  spec.email         = ["15201280641@qq.com"]
+  spec.email         = ["stream8060@gmail.com"]
 
   spec.summary       = %q{自动部署网站到服务器}
   spec.description   = %q{自动将本地代码上传到阿里云服务器}
-  spec.homepage      = "https://github.com/mumaoxi/AutoAliCDN"
+  spec.homepage      = "https://github.com/NicolasYiu/AutoAliCDN"
   spec.license       = "MIT"
 
   # Prevent pushing this gem to RubyGems.org. To allow pushes either set the 'allowed_push_host'
